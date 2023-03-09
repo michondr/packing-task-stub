@@ -8,6 +8,20 @@
             "weight": 4.0
         },
         {
+            "id": 1,
+            "width": 3.4,
+            "height": 2.1,
+            "length": 3.0,
+            "weight": 4.0
+        },
+        {
+            "id": 3,
+            "width": 3.5,
+            "height": 2.1,
+            "length": 2.0,
+            "weight": 4.0
+        },
+        {
             "id": 2,
             "width": 4.9,
             "height": 1.0,
