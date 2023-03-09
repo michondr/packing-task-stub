@@ -29,6 +29,8 @@ class PackingClient
             'api_key' => $this->apiKey,
         ];
 
+        //TODO: use logger->info for endpoint request. what to do with the api key?
+
         return $this->guzzleClient->sendRequest(
             new Request(
                 'POST',

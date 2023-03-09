@@ -22,7 +22,7 @@ readonly class ApplicationFacade
         private PackagingTransformer $packagingTransformer,
         private ProductTransformer $itemsTransformer,
         private PackingClient $packingClient,
-        private PackingCache $packingCache
+        private PackingCache $packingCache,
     ) {
     }
 
@@ -36,7 +36,7 @@ readonly class ApplicationFacade
         $cachedPackedProduct = $this->packingCache->get($products->getHashKey());
 
         if ($cachedPackedProduct !== null) {
-            var_dump('returning from cache'); //TODO: log cache hit
+            var_dump('returning from cache'); //TODO: use logger->info for cache hit
             return $cachedPackedProduct->getAvailablePackaging();
         }
 
@@ -52,7 +52,7 @@ readonly class ApplicationFacade
         }
 
         $packagingResponseData = json_decode($packingResponse->getBody()->getContents(), true);
-        print_r($packagingResponseData); //TODO: log this
+        print_r($packagingResponseData); //TODO: use logger->info for endpoint response hit
 
         $notPackedItems = $packagingResponseData['response']['not_packed_items'];
         $binsPacked = $packagingResponseData['response']['bins_packed'];
@@ -69,10 +69,49 @@ readonly class ApplicationFacade
 
         $this->packingCache->set(
             $products->getHashKey(),
-            $selectedPackaging
+            $selectedPackaging,
         );
 
         return $selectedPackaging;
+    }
+
+    /**
+     * @throws ProductsCouldNotBePackedToASinglePackagingException
+     */
+    public function getFallbackPackaging(ProductList $productList): Packaging
+    {
+        $allPackaging = $this->packagingRepository->findAll();
+
+        usort(
+            $allPackaging,
+            fn(Packaging $a, Packaging $b) => $a->getVolume() <=> $b->getVolume(),
+        );
+
+        foreach ($allPackaging as $availablePackaging) {
+            //TODO: move volume safety constant to config
+            if (
+                $availablePackaging->getMaxWeight() > $productList->getTotalWeight()
+                && $availablePackaging->getVolume() > (1.25 * $productList->getTotalVolume())
+            ) {
+                $noProductExceedsPackagingDimension = true;
+
+                foreach ($productList->getProducts() as $product) {
+                    if (
+                        $availablePackaging->getWidth() < $product->getWidth()
+                        || $availablePackaging->getHeight() < $product->getHeight()
+                        || $availablePackaging->getLength() < $product->getLength()
+                    ) {
+                        $noProductExceedsPackagingDimension = false;
+                    }
+                }
+
+                if ($noProductExceedsPackagingDimension === true) {
+                    return $availablePackaging;
+                }
+            }
+        }
+
+        throw new ProductsCouldNotBePackedToASinglePackagingException();
     }
 
 

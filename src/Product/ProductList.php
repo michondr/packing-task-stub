@@ -47,4 +47,26 @@ readonly class ProductList
             ),
         );
     }
+
+    public function getTotalVolume(): float
+    {
+        $volume = 0;
+
+        foreach ($this->products as $product) {
+            $volume += ($product->getWidth() * $product->getHeight() * $product->getLength());
+        }
+
+        return $volume;
+    }
+
+    public function getTotalWeight(): float
+    {
+        $weight = 0;
+
+        foreach ($this->products as $product) {
+            $weight += $product->getWeight();
+        }
+
+        return $weight;
+    }
 }

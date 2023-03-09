@@ -59,4 +59,9 @@ class Packaging
         return $this->maxWeight;
     }
 
+    public function getVolume(): float
+    {
+        return $this->width * $this->height * $this->length;
+    }
+
 }

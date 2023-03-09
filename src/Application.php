@@ -35,12 +35,20 @@ readonly class Application
             $selectedPackage = $this->applicationFacade->getPackagingForProducts($products);
 
             return $this->createSuccessResponse($selectedPackage);
-        } catch (UnexpectedApiResponseReturnCodeException $e) {
-            return $this->createBadRequestResponse('api is down'); //TODO: do fallback
         } catch (SomeProductsExceedPackagingValuesException $e) {
             return $this->createBadRequestResponse('some products exceed packaging values');
         } catch (ProductsCouldNotBePackedToASinglePackagingException $e) {
             //TODO: what if its more optimal to have two smaller boxes (returned by the api) but you have a larger one that could contain all?
+            return $this->createBadRequestResponse('not all products could fit single packaging');
+        } catch (UnexpectedApiResponseReturnCodeException $e) {
+            var_dump('api is down, fallback executed'); //TODO: use logger->error
+        }
+
+        try {
+            $selectedPackage = $this->applicationFacade->getFallbackPackaging($products);
+
+            return $this->createSuccessResponse($selectedPackage);
+        } catch (ProductsCouldNotBePackedToASinglePackagingException $e) {
             return $this->createBadRequestResponse('not all products could fit single packaging');
         }
     }
