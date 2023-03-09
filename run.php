@@ -14,12 +14,12 @@ $request = new Request('POST', new Uri('http://localhost/pack'), ['Content-Type'
 $application = new Application(
     new \App\Facade\ApplicationFacade(
         new \App\Entity\Packaging\PackagingRepository($entityManager),
-        new \App\Entity\PackagedProducts\PackagedProductsRepository($entityManager),
         new \App\BinPacking\PackagingTransformer(),
         new \App\BinPacking\ProductTransformer(),
         new \App\BinPacking\PackingClient(
             new \GuzzleHttp\Client()
-        )
+        ),
+        new \App\BinPacking\PackingCache($entityManager)
     ),
     new \App\Product\ProductSerializer(),
 );

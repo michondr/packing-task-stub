@@ -4,18 +4,15 @@ declare(strict_types=1);
 
 namespace App\Product;
 
-class ProductSerializer
+readonly class ProductSerializer
 {
-    /**
-     * @param string $json
-     *
-     * @return Product[]
-     */
-    public function deserialize(string $json): array
+    public function deserialize(string $json): ProductList
     {
-        return array_map(
-            fn(array $productAsArray) => $this->deserializeSingleProduct($productAsArray),
-            json_decode($json, true)['products'],
+        return new ProductList(
+            array_map(
+                fn(array $productAsArray) => $this->deserializeSingleProduct($productAsArray),
+                json_decode($json, true)['products'],
+            )
         );
     }
 

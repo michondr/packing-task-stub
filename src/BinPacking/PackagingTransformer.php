@@ -6,7 +6,7 @@ namespace App\BinPacking;
 
 use App\Entity\Packaging\Packaging;
 
-class PackagingTransformer
+readonly class PackagingTransformer
 {
 
     /**

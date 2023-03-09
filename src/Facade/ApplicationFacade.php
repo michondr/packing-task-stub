@@ -6,22 +6,23 @@ namespace App\Facade;
 
 use App\BinPacking\ProductTransformer;
 use App\BinPacking\PackagingTransformer;
+use App\BinPacking\PackingCache;
 use App\BinPacking\PackingClient;
-use App\Entity\PackagedProducts\PackagedProductsRepository;
 use App\Entity\Packaging\Packaging;
 use App\Entity\Packaging\PackagingRepository;
 use App\Facade\Exception\ProductsCouldNotBePackedToASinglePackagingException;
 use App\Facade\Exception\SomeProductsExceedPackagingValuesException;
 use App\Facade\Exception\UnexpectedApiResponseReturnCodeException;
+use App\Product\ProductList;
 
 readonly class ApplicationFacade
 {
     public function __construct(
         private PackagingRepository $packagingRepository,
-        private PackagedProductsRepository $packagedProductsRepository,
         private PackagingTransformer $packagingTransformer,
         private ProductTransformer $itemsTransformer,
         private PackingClient $packingClient,
+        private PackingCache $packingCache
     ) {
     }
 
@@ -30,9 +31,9 @@ readonly class ApplicationFacade
      * @throws SomeProductsExceedPackagingValuesException
      * @throws ProductsCouldNotBePackedToASinglePackagingException
      */
-    public function getPackagingForProducts(array $products): Packaging
+    public function getPackagingForProducts(ProductList $products): Packaging
     {
-        $cachedPackedProduct = $this->packagedProductsRepository->getByProducts($products);
+        $cachedPackedProduct = $this->packingCache->get($products->getHashKey());
 
         if ($cachedPackedProduct !== null) {
             var_dump('returning from cache'); //TODO: log cache hit
@@ -66,9 +67,9 @@ readonly class ApplicationFacade
         $selectedPackagingId = $binsPacked[0]['bin_data']['id'];
         $selectedPackaging = $this->packagingRepository->getById($selectedPackagingId);
 
-        $this->packagedProductsRepository->savePackagingForProducts(
-            $products,
-            $selectedPackaging,
+        $this->packingCache->set(
+            $products->getHashKey(),
+            $selectedPackaging
         );
 
         return $selectedPackaging;

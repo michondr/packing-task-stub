@@ -12,7 +12,8 @@
         "doctrine/annotations": "1.*",
         "symfony/cache": "6.*",
         "guzzlehttp/guzzle": "^7.5",
-        "doctrine/doctrine-bundle": "^2.8"
+        "doctrine/doctrine-bundle": "^2.8",
+        "psr/simple-cache": "^3.0"
     },
     "autoload": {
         "psr-4": {

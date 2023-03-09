@@ -4,12 +4,30 @@ declare(strict_types=1);
 
 namespace App\Product;
 
-class ProductHashGenerator
+readonly class ProductList
 {
-    public static function generate(array $products): string
+    /**
+     * @param array<Product> $products
+     */
+    public function __construct(
+        private array $products,
+    ) {
+    }
+
+    /**
+     * @return array<Product>
+     */
+    public function getProducts(): array
     {
+        return $this->products;
+    }
+
+    public function getHashKey(): string
+    {
+        $productsOrderedById = $this->products;
+
         usort(
-            $products,
+            $productsOrderedById,
             fn(Product $a, Product $b) => $a->getId() <=> $b->getId(),
         );
 
@@ -24,7 +42,7 @@ class ProductHashGenerator
                         $p->getLength(),
                         $p->getWeight(),
                     ),
-                    $products,
+                    $productsOrderedById,
                 ),
             ),
         );

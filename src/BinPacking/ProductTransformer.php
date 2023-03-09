@@ -5,14 +5,15 @@ declare(strict_types=1);
 namespace App\BinPacking;
 
 use App\Product\Product;
+use App\Product\ProductList;
 
-class ProductTransformer
+readonly class ProductTransformer
 {
-    public function transformProductsToItems(array $products): array
+    public function transformProductsToItems(ProductList $productList): array
     {
         return array_map(
             fn(Product $p) => $this->transformSingleProductToItem($p),
-            $products,
+            $productList->getProducts(),
         );
     }
 
