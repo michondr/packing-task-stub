@@ -1,3 +1,5 @@
+task: https://docs.google.com/document/d/1QbXgRr4T8-9GjjpvpotzzlWodhz8N50HTFwtCwHh-TI/edit
+
 ### init
 - `printf "UID=$(id -u)\nGID=$(id -g)" > .env`
 - `docker-compose up -d`
